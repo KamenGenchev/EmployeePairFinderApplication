@@ -1,10 +1,12 @@
 package com.sirmaacademy.employeepairfinderapp.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 
 @Entity
 public class Employee {
     @Id
+    @NotNull
     private Long id;
 
     public Employee(Long id) {

@@ -1,4 +1,4 @@
-package com.sirmaacademy.employeepairfinderapp;
+package com.sirmaacademy.employeepairfinderapp.pairfinder;
 
 import com.sirmaacademy.employeepairfinderapp.model.Employee;
 import com.sirmaacademy.employeepairfinderapp.model.EmployeeCollabPair;

@@ -22,7 +22,7 @@ public class DateFormats {
             };
 
     public static LocalDate convertDate(String date){
-        if (date.equals("null")) {
+        if (date.equals("NULL") || date.equals("null")) {
             return LocalDate.now();
         }
 

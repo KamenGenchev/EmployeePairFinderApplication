@@ -1,7 +1,9 @@
 package com.sirmaacademy.employeepairfinderapp;
 
+import com.sirmaacademy.employeepairfinderapp.csvreader.CsvDataPopulation;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ConfigurableApplicationContext;
 
 import java.sql.*;
 
@@ -13,7 +15,7 @@ public class EmployeePairFinderApplication {
         Statement statement = null;
 
         try {
-            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", "postgres", "password");
+            connection = DriverManager.getConnection("jdbc:postgresql://localhost:5432/", "postgres", "akame");
             statement = connection.createStatement();
             statement.executeQuery("SELECT count(*) FROM pg_database WHERE datname ='pairfinderdb' ");
             ResultSet resultSet = statement.getResultSet();
@@ -37,7 +39,9 @@ public class EmployeePairFinderApplication {
             }
         }
 
-        SpringApplication.run(EmployeePairFinderApplication.class, args);
+        ConfigurableApplicationContext context = SpringApplication.run(EmployeePairFinderApplication.class, args);
+        CsvDataPopulation csvDataPopulation = context.getBean(CsvDataPopulation.class);
+        csvDataPopulation.getData();
     }
 
 }

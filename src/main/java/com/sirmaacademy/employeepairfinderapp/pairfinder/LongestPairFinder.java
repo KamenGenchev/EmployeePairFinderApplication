@@ -1,80 +1,73 @@
 package com.sirmaacademy.employeepairfinderapp.pairfinder;
 
-import com.sirmaacademy.employeepairfinderapp.model.Employee;
-import com.sirmaacademy.employeepairfinderapp.model.EmployeeCollabPair;
+import com.sirmaacademy.employeepairfinderapp.model.EmployeePair;
 import com.sirmaacademy.employeepairfinderapp.model.EmployeeProjectTimeline;
+import org.springframework.stereotype.Component;
 
 
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
+@Component
 public class LongestPairFinder {
-    public String getLongestPair(List<EmployeeProjectTimeline> timelines, Long projectId) {
-        EmployeeCollabPair longestPair = findLongestEmployeePair(getProjectSpecificTimelines(timelines, projectId));
+    public Set<EmployeePair> executeOnProject(List<EmployeeProjectTimeline> allTimelines, Long projectId) {
+        List<EmployeeProjectTimeline> filteredTimelines = allTimelines
+                .stream()
+                .filter(p -> Objects.equals(p.getProjectID(), projectId))
+                .toList();
 
-        if (longestPair.getEmployeePairList().isEmpty()) {
-            return "No overlapping employee pairs found for Project " + projectId + ".";
-        }
-
-        return "Employee Pair with Overlapping Duration for Project " + projectId + ": " +
-                longestPair.getEmployeePairList() + " Duration: " + longestPair.getDurationInDays();
-
+        return getLongestPairs(filteredTimelines);
     }
 
-    private EmployeeCollabPair findLongestEmployeePair(List<EmployeeProjectTimeline> timelines) {
-        timelines.sort(Comparator
-                .comparing(EmployeeProjectTimeline::getStartDate)
-                .thenComparing(EmployeeProjectTimeline::getEndDate));
+    private Set<EmployeePair> getLongestPairs(List<EmployeeProjectTimeline> timelines) {
+        Map<EmployeePair, EmployeePair> employeePairs = new HashMap<>();
 
-        EmployeeCollabPair employeeCollabPair = new EmployeeCollabPair();
-        Map<Long, List<Employee>> projectEmployeesMap = new HashMap<>();
-        LocalDate currentDate = LocalDate.now();
+        for (EmployeeProjectTimeline timeline1 : timelines) {
+            for (EmployeeProjectTimeline timeline2 : timelines) {
+                if (periodsOverlap(timeline1, timeline2)) {
+                    EmployeePair pair = new EmployeePair(
+                            timeline1.getEmployee(), timeline2.getEmployee(), timeline1.getProjectID());
 
-        for (EmployeeProjectTimeline timeline : timelines) {
-            LocalDate startDate = timeline.getStartDate();
-            LocalDate endDate = timeline.getEndDate();
+                    if (employeePairs.containsKey(pair)) {
+                        long durationInDays = employeePairs.get(pair).getDurationInDays();
+                        LocalDate startDate = employeePairs.get(pair).getStartDate();
 
-            if (startDate.isAfter(currentDate)) {
-                projectEmployeesMap.clear();
-                currentDate = endDate.plusDays(1);
-            }
+                        if (timeline1.getStartDate().isBefore(startDate)) {
+                            startDate = timeline1.getStartDate();
+                        }
 
-            projectEmployeesMap
-                    .computeIfAbsent(timeline.getProjectID(), n -> new ArrayList<>())
-                    .add(timeline.getEmployee());
+                        if (timeline2.getEndDate().isAfter(employeePairs.get(pair).getEndDate())) {
+                            employeePairs.get(pair).setEndDate(timeline2.getEndDate());
+                        }
 
-            List<Employee> currentEmployees = projectEmployeesMap.get(timeline.getProjectID());
-            if (currentEmployees.size() > 1) {
-                int duration = getDateAsInt(currentDate) - getDateAsInt(startDate);
-                employeeCollabPair =
-                        new EmployeeCollabPair(new ArrayList<>(currentEmployees), timeline.getProjectID(), duration);
-
-                List<Employee> overlappingEmployees = new ArrayList<>(currentEmployees);
-                for (EmployeeProjectTimeline nextTimeline : timelines) {
-                    if (nextTimeline.getStartDate().isAfter(currentDate)) {
-                        break;
-                    }
-                    if (nextTimeline.getProjectID().equals(timeline.getProjectID())) {
-                        overlappingEmployees.add(nextTimeline.getEmployee());
+                        long daysOverlap = timeline2.getEndDate().toEpochDay() - startDate.toEpochDay() + 1;
+                        employeePairs.get(pair).setDurationInDays((int) (durationInDays + daysOverlap));
+                    } else {
+                        employeePairs.put(pair, pair);
                     }
                 }
-                currentEmployees.retainAll(overlappingEmployees);
             }
         }
 
-        return employeeCollabPair;
+        EmployeePair longestPair = findLongestPair(employeePairs.values());
+
+        return longestPair != null ? Set.of(longestPair) : Collections.emptySet();
     }
 
-    private int getDateAsInt(LocalDate localDate) {
-        int dateInt = 0;
-        dateInt = localDate.getYear() + localDate.getDayOfYear();
-        return dateInt;
+    private boolean periodsOverlap(EmployeeProjectTimeline timeline1, EmployeeProjectTimeline timeline2) {
+        return !timeline1.getStartDate().isAfter(timeline2.getEndDate()) &&
+                !timeline2.getStartDate().isBefore(timeline1.getStartDate());
     }
 
-    private List<EmployeeProjectTimeline> getProjectSpecificTimelines(List<EmployeeProjectTimeline> allTimelines, Long projectId) {
-        return allTimelines.stream()
-                .filter(p -> Objects.equals(p.getProjectID(), projectId))
-                .collect(Collectors.toList());
+    private EmployeePair findLongestPair(Collection<EmployeePair> pairs) {
+        EmployeePair longestPair = null;
+
+        for (EmployeePair pair : pairs) {
+            if (longestPair == null || pair.getDurationInDays() > longestPair.getDurationInDays()) {
+                longestPair = pair;
+            }
+        }
+
+        return longestPair;
     }
 }

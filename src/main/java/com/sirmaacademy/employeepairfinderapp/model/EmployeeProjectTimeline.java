@@ -11,11 +11,11 @@ public class EmployeeProjectTimeline {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @NotNull
     private Employee employee;
     @NotNull
-    private Long projectID;
+    private Long projectId;
     @NotNull
     private LocalDate startDate;
 
@@ -23,7 +23,7 @@ public class EmployeeProjectTimeline {
 
     public EmployeeProjectTimeline(Employee employee, Long projectID, LocalDate startDate, LocalDate endDate) {
         this.employee = employee;
-        this.projectID = projectID;
+        this.projectId = projectID;
         this.startDate = startDate;
         this.endDate = Objects.requireNonNullElseGet(endDate, LocalDate::now);
     }
@@ -48,11 +48,11 @@ public class EmployeeProjectTimeline {
     }
 
     public Long getProjectID() {
-        return projectID;
+        return projectId;
     }
 
     public void setProjectID(Long projectID) {
-        this.projectID = projectID;
+        this.projectId = projectID;
     }
 
     public LocalDate getStartDate() {

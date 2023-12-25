@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employees</title>
+</head>
+<body>
+
+<h1>Employees</h1>
+
+<ul>
+    <li><a th:href="@{/employees/delete}" th:text="Delete Employee"></a></li>
+    <li><a th:href="@{/employees/search}" th:text="Search by ID"></a></li>
+</ul>
+
+<h2>All Employees</h2>
+<table>
+    <thead>
+    <tr>
+        <th>ID</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="employee : ${employees}">
+        <td th:text="${employee.id}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

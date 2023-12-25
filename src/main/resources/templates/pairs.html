@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Employee Pairs</title>
+</head>
+<body>
+
+<h1>Employee Pairs</h1>
+
+<h2>All Employee Pairs</h2>
+<table>
+    <thead>
+    <tr>
+        <th>Project ID</th>
+        <th>Employee 1 ID</th>
+        <th>Employee 2 ID</th>
+        <th>Duration (Days)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="pair : ${pairs}">
+        <td th:text="${pair.projectID}"></td>
+        <td th:text="${pair.emp1 != null ? pair.emp1.id : ''}"></td>
+        <td th:text="${pair.emp2 != null ? pair.emp2.id : ''}"></td>
+        <td th:text="${pair.durationInDays}"></td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Employee Project Timeline</title>
+</head>
+<body>
+
+<h2>Edit Employee Project Timeline</h2>
+
+<form th:object="${employeeProjectTimeline}" th:action="@{/timelines/edit/{id}(id=${timeline.id})}" method="post">
+    <input type="hidden" th:field="*{id}">
+
+    <label for="employeeId">Employee ID:</label>
+    <input type="text" id="employeeId" th:field="*{employeeId}" required>
+    <br>
+
+    <label for="projectId">Project ID:</label>
+    <input type="text" id="projectId" th:field="*{projectId}" required>
+    <br>
+
+    <label for="startDate">Start Date:</label>
+    <input type="text" id="startDate" th:field="*{startDate}" required>
+    <br>
+
+    <label for="endDate">End Date:</label>
+    <input type="text" id="endDate" th:field="*{endDate}">
+    <br>
+
+    <button type="submit">Save Changes</button>
+</form>
+
+<a th:href="@{/timelines}">Go Back</a>
+
+</body>
+</html>
